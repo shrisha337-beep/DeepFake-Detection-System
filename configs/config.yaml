@@ -1,0 +1,52 @@
+# === Deepfake Detection System - Configuration ===
+
+data:
+  image_size: 224
+  batch_size: 16            # Small batch for CPU training
+  num_workers: 2            # Conservative for CPU
+  data_dir: "data"
+  train_csv: "data/splits/train.csv"
+  val_csv: "data/splits/val.csv"
+  test_csv: "data/splits/test.csv"
+
+model:
+  architecture: "resnet50"
+  pretrained: true
+  dropout: 0.5
+  num_classes: 1            # Binary: real vs fake
+
+training:
+  epochs: 15                # Fewer epochs for CPU training
+  learning_rate: 0.0001     # 1e-4, standard for fine-tuning
+  weight_decay: 0.0001
+  scheduler: "cosine_annealing"
+  warmup_epochs: 2
+  early_stopping_patience: 5
+  mixed_precision: false    # No AMP on CPU
+  label_smoothing: 0.1
+  gradient_clip_max_norm: 1.0
+  
+  # Progressive unfreezing schedule (epoch -> layer to unfreeze)
+  unfreeze_schedule:
+    5: "layer4"
+    10: "layer3"
+
+optimizer:
+  type: "AdamW"
+  betas: [0.9, 0.999]
+
+evaluation:
+  threshold: 0.5
+  gradcam_target_layer: "layer4"
+
+inference:
+  device: "cpu"
+  model_path: "models/best_model.pth"
+  face_detector: "opencv_dnn"  # Fast for real-time
+  confidence_threshold: 0.7
+
+logging:
+  log_dir: "logs"
+  save_dir: "models"
+  log_every_n_steps: 25
+  save_top_k: 3

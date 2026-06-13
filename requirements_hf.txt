@@ -1,0 +1,12 @@
+torch
+torchvision
+opencv-python-headless
+facenet-pytorch
+albumentations
+pandas
+numpy
+Pillow
+matplotlib
+scikit-learn
+gradio>=6.0
+pyyaml
